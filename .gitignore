@@ -1,0 +1,8 @@
+# Profile result files
+*.atp
+*.csv
+
+# Some generated files
+*.swp
+*.swo
+.DS_Store
