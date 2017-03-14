@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta name="author" content="Chih-Yung Liang, Covart Lab, NTU CSIE">
+    <meta name="description" content="The profile result viewer for profiling HSA program with CodeXL.">
+    <title>Profile Result Viewer</title>
+
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" integrity="sha384-BVYiiSIFeK1dGmJRAkycuHAHRg32OmUcww7on3RYdg4Va+PmSTsz/K68vbdEjh4u" crossorigin="anonymous">
+</head>
+
+<body>
+    <div class="container">
+        <div class="page-header">
+            <h1>HSA Profile Result Viewer</h1>
+        </div>
+
+        <h2>API Trace</h2>
+        <form class="form-horizontal" id="apitrace-form">
+            <div class="form-group">
+                <label class="control-label col-md-offset-6 col-md-1" for="apitrace-file">URL:</label>
+                <div class="col-md-4">
+                    <input type="text" class="form-control" id="apitrace-file" placeholder="apitrace.atp" required>
+                </div>
+                <div class="col-md-1">
+                    <button type="submit" class="btn btn-success">View</button>
+                </div>
+            </div>
+        </form>
+        <div id="apitrace-result">
+        </div>
+    </div>
+
+    <script src="https://code.jquery.com/jquery-3.1.1.min.js"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js" integrity="sha384-Tc5IQib027qvyjSMfHjOMaLkfuWVxZxUPnCJA7l2mCWNIpG9mGCD8wGNIcPD7Txa" crossorigin="anonymous"></script>
+    <script src="js/APITraceAnalyzer.js"></script>
+
+    <script>
+        var apitrace = new APITraceAnalyzer(5, $('#apitrace-result'));
+        var apitraceURL = $('#apitrace-file');
+
+        $('#apitrace-form').submit(function() {
+            event.preventDefault();
+            apitrace.updateURL(apitraceURL.val());
+        });
+    </script>
+</body>
+</html>
