@@ -122,14 +122,18 @@ function APITraceAnalyzer(updateFrequency, reportDiv) {
 
         this.report = function(div) {
             if (this.div == null) {
+                let title = $("<h3>API Times Analysis</h3>").appendTo(div);
+
+                let _this = this;
+                $('<a class="pull-right btn btn-sm btn-default" href="#">Toggle hide</a>').appendTo(title).click(function() {
+                    _this.div.slideToggle();
+                });
+
                 this.div = $('<div>').appendTo(div);
             } else {
                 this.div.empty();
             }
 
-            this.div.append(
-                "<h3>API Times Analysis</h3>"
-            );
             this.plotDiv = $('<div>').appendTo(this.div);
 
             this.drawTable();
