@@ -102,6 +102,16 @@ function APITraceAnalyzer(updateFrequency, reportDiv) {
                 return (this.sum() / _this.totalTime * 100).toFixed(4) + "%";
             };
 
+            durations.iqr = function() {
+                let quartiles = this.quartiles();
+                let iqr = quartiles[2] - quartiles[0];
+                if (Number(iqr) !== iqr) {
+                    return '';
+                }
+
+                return iqr.toLocaleString() + ' (' + Math.round(iqr / this.median() * 100) + '%)';
+            }
+
             return durations;
         });
         this.totalTime = this.statisticResult.reduce(function(total, currentValue) {
@@ -149,6 +159,7 @@ function APITraceAnalyzer(updateFrequency, reportDiv) {
                 max: "Max",
                 median: "Median",
                 stdev: "Standard Deviation",
+                iqr: "Interquartile Range",
                 sum: "Cumulative",
                 ratio: "%"
             };
@@ -251,6 +262,16 @@ function APITraceAnalyzer(updateFrequency, reportDiv) {
                 return (this.sum() / _this.totalTime * 100).toFixed(4) + "%";
             };
 
+            durations.iqr = function() {
+                let quartiles = this.quartiles();
+                let iqr = quartiles[2] - quartiles[0];
+                if (Number(iqr) !== iqr) {
+                    return '';
+                }
+
+                return iqr.toLocaleString() + ' (' + Math.round(iqr / this.median() * 100) + '%)';
+            }
+
             return durations;
         });
         this.totalTime = this.statisticResult.reduce(function(total, currentValue) {
@@ -298,6 +319,7 @@ function APITraceAnalyzer(updateFrequency, reportDiv) {
                 max: "Max",
                 median: "Median",
                 stdev: "Standard Deviation",
+                iqr: "Interquartile Range",
                 sum: "Cumulative",
                 ratio: "%"
             };
