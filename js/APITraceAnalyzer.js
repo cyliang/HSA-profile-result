@@ -137,6 +137,7 @@ function APITraceAnalyzer(updateFrequency, reportDiv) {
             let table = $('<table class="table table-striped table-hover">').appendTo(this.div);
             let columns = {
                 apiName: "API",
+                cols: "Count",
                 min: "Min",
                 max: "Max",
                 median: "Median",
@@ -178,7 +179,7 @@ function APITraceAnalyzer(updateFrequency, reportDiv) {
                 $.each(columns, function(key, value) {
                     let number = result[key]();
                     if (Number(number) === number) {
-                        number = Math.round(number * 10000) / 10000;
+                        number = (Math.round(number * 10000) / 10000).toLocaleString();
                     }
 
                     $('<td>').appendTo(tr).text(number);
