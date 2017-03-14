@@ -25,8 +25,10 @@ function APITraceAnalyzer(updateFrequency, reportDiv) {
                 return;
             }
 
-            _this.rawData = data;
-            _this.analyze();
+            if (data != _this.rawData) {
+                _this.rawData = data;
+                _this.analyze();
+            }
         }).fail(function(_, status) {
             _this.loadFailed(status);
         });
@@ -44,9 +46,9 @@ function APITraceAnalyzer(updateFrequency, reportDiv) {
         let kernelTimeStart = this.rawData.indexOf("=====CodeXL hsa Kernel Timestamp Output=====");
 
         this.analyzeResult = {
-            apiOutput: new APIOutput(this.rawData.slice(apiOutputStart, apiTimeStart - 1)),
-            apiTime: new APITime(this.rawData.slice(apiTimeStart, kernelTimeStart - 1)),
-            kernelTime: new KernelTime(this.rawData.slice(kernelTimeStart))
+            apiOutput: new APIOutput(this.rawData.slice(apiOutputStart, apiTimeStart - 1), this),
+            apiTime: new APITime(this.rawData.slice(apiTimeStart, kernelTimeStart - 1), this),
+            kernelTime: new KernelTime(this.rawData.slice(kernelTimeStart), this)
         };
 
         this.report();
@@ -57,17 +59,19 @@ function APITraceAnalyzer(updateFrequency, reportDiv) {
         this.analyzeResult.apiTime.report(reportDiv);
     };
 
-    function APIOutput(data) {
+    function APIOutput(data, analyzer) {
         let lines = data.split("\n");
         let count = lines[2];
 
+        this.analyzer = analyzer;
         this.calls = lines.slice(3);
     };
 
-    function APITime(data) {
+    function APITime(data, analyzer) {
         let lines = data.split("\n");
         let count = lines[2];
 
+        this.analyzer = analyzer;
         this.apiDurations = {};
         this.div = null;
 
@@ -102,8 +106,26 @@ function APITraceAnalyzer(updateFrequency, reportDiv) {
             return total + currentValue.sum();
         }, 0);
 
+        this.sort = function() {
+            if (this.analyzer.sortApiTime !== undefined) {
+                let sort = this.analyzer.sortApiTime;
+                let column = sort.slice(1);
+                let order = Number(sort[0] + '1');
+
+                this.statisticResult.sort(function(l, r) {
+                    return (r[column]() - l[column]()) * order;
+                });
+            }
+        };
+        this.sort();
+
         this.report = function(div) {
-            this.div = $('<div>').appendTo(div);
+            if (this.div == null) {
+                this.div = $('<div>').appendTo(div);
+            } else {
+                this.div.empty();
+            }
+
             this.div.append(
                 "<h3>API Times Analysis</h3>"
             );
@@ -124,8 +146,30 @@ function APITraceAnalyzer(updateFrequency, reportDiv) {
             };
 
             let theadr = $('<tr>').appendTo($('<thead>').appendTo(table));
-            $.each(columns, function(value, key) {
-                $('<th>').appendTo(theadr).text(value);
+            let _this = this;
+            $.each(columns, function(key, value) {
+                let sort = _this.analyzer.sortApiTime;
+                if (sort !== undefined && sort.slice(1) == key) {
+                    value = sort[0] + value;
+                    key = sort[0] + key;
+                }
+
+                $('<a>').appendTo($('<th>').appendTo(theadr))
+                    .text(value)
+                    .attr('href', '#')
+                    .data('column', key)
+                    .click(function() {
+                        if (key[0] == '-') {
+                            _this.analyzer.sortApiTime = '+' + $(this).data('column').slice(1);
+                        } else if (key[0] == '+') {
+                            _this.analyzer.sortApiTime = '-' + $(this).data('column').slice(1);
+                        } else {
+                            _this.analyzer.sortApiTime = '-' + $(this).data('column');
+                        }
+
+                        _this.sort();
+                        _this.report();
+                    });
             });
 
             let tbody = $('<tbody>').appendTo(table);
@@ -143,9 +187,11 @@ function APITraceAnalyzer(updateFrequency, reportDiv) {
         };
     };
 
-    function KernelTime(data) {
+    function KernelTime(data, analyzer) {
         var lines = data.split("\n");
         var count = lines[1];
+
+        this.analyzer = analyzer;
     }
 }
 
