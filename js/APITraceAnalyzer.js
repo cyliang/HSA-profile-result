@@ -74,6 +74,7 @@ function APITraceAnalyzer(updateFrequency, reportDiv) {
         this.analyzer = analyzer;
         this.apiDurations = {};
         this.div = null;
+        this.plotDiv = null;
 
         lines = lines.slice(3);
         for (let call in lines) {
@@ -129,6 +130,7 @@ function APITraceAnalyzer(updateFrequency, reportDiv) {
             this.div.append(
                 "<h3>API Times Analysis</h3>"
             );
+            this.plotDiv = $('<div>').appendTo(this.div);
 
             this.drawTable();
         };
@@ -172,6 +174,7 @@ function APITraceAnalyzer(updateFrequency, reportDiv) {
                         _this.report();
                     });
             });
+            $('<th>').appendTo(theadr).text("Plot");
 
             let tbody = $('<tbody>').appendTo(table);
             $.each(this.statisticResult, function(index, result) {
@@ -182,9 +185,30 @@ function APITraceAnalyzer(updateFrequency, reportDiv) {
                         number = (Math.round(number * 10000) / 10000).toLocaleString();
                     }
 
-                    $('<td>').appendTo(tr).text(number);
+                    $('<td>').appendTo(tr).html(number);
                 });
+
+                $('<a>').appendTo($('<td>').appendTo(tr))
+                    .text('Draw')
+                    .attr('href', '#')
+                    .data('api', result.apiName())
+                    .click(function() {
+                        _this.drawPlot($(this).data('api'));
+                    });
             });
+        };
+
+        this.drawPlot = function(apiName) {
+            let data = this.apiDurations[apiName];
+            this.plotDiv.empty();
+
+            Plotly.newPlot(this.plotDiv[0], [{
+                x: data,
+                type: 'histogram',
+                marker: {
+                    color: 'rgba(100, 250, 100, 0.7)'
+                }
+            }]);
         };
     };
 
