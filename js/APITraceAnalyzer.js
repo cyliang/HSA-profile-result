@@ -8,7 +8,9 @@ function APITraceAnalyzer(updateFrequency, reportDiv) {
 
     this.updateURL = function(url) {
         this.url = url;
-        this.interval = window.setInterval(this.update, this.updateFrequency * 1000, this);
+        if (this.interval == null) {
+            this.interval = window.setInterval(this.update, this.updateFrequency * 1000, this);
+        }
         this.update(this);
     };
 
